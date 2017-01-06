@@ -4,10 +4,8 @@ section .text
 bits 64
 long_mode_start:
     ; print `OKAY` to screen
-    mov rax, 0x2f592f412f4b2f4f
+    mov rax, 0x2f472f4e2f4f2f4c
     mov qword [0xb8000], rax
-    mov rax, 0x2f4e2f4f2f4c2f20
+    mov rax, 0x2f452f442f4f2f4d
     mov qword [0xb8008], rax
-    mov rax, 0x2f002f002f002f47
-    mov qword [0xb8016], rax
     hlt
