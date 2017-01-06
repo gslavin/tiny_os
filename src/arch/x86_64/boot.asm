@@ -1,19 +1,30 @@
 global start
+extern long_mode_start
 
 section .text
 bits 32
 start:
     mov esp, stack_top
 
+    ; Check for errors
     call check_multiboot
     call check_cpuid
     call check_long_mode
 
+    ; Handle paging
     call set_up_page_tables
     call enable_paging
-    ; print `OK` to screen
-    mov dword [0xb8000], 0x2f4b2f4f
-    hlt
+
+    ; load the 64-bit GDT
+    lgdt [gdt64.pointer]
+
+    ; update selectors
+    mov ax, gdt64.data
+    mov ss, ax  ; stack selector
+    mov ds, ax  ; data selector
+    mov es, ax  ; extra selector
+
+    jmp gdt64.code:long_mode_start
 
 ; Prints `ERR: ` and the given error code to screen and hangs.
 ; parameter: error code (in ascii) in al
@@ -135,6 +146,17 @@ enable_paging:
     mov cr0, eax
 
     ret
+
+section .rodata
+gdt64:
+    dq 0 ; zero entry
+.code: equ $ - gdt64
+    dq (1<<44) | (1<<47) | (1<<41) | (1<<43) | (1<<53) ; code segment
+.data: equ $ - gdt64
+    dq (1<<44) | (1<<47) | (1<<41) ; data segment
+.pointer:
+    dw $ - gdt64 - 1
+    dq gdt64
 
 section .bss
 align 4096
