@@ -8,7 +8,7 @@ assembly_source_files := $(wildcard src/arch/$(arch)/*.asm)
 assembly_object_files := $(patsubst src/arch/$(arch)/%.asm, \
 	build/arch/$(arch)/%.o, $(assembly_source_files))
 target ?= $(arch)-unknown-linux-gnu
-rust_os := target/$(target)/debug/libblog_os.a
+rust_os := target/$(target)/debug/libtiny_os.a
 .PHONY: all clean run iso
 
 all: $(kernel)

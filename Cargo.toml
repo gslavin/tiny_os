@@ -1,7 +1,7 @@
 [package]
-name = "blog_os"
+name = "tiny_os"
 version = "0.1.0"
-authors = ["Philipp Oppermann <dev@phil-opp.com>"]
+authors = ["Philipp Oppermann <dev@phil-opp.com>", "George Slavin"]
 
 [lib]
 crate-type = ["staticlib"]
