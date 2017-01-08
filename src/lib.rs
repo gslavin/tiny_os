@@ -1,8 +1,19 @@
 #![feature(lang_items)]
+#![feature(const_fn)]
+#![feature(unique)]
+
 #![no_std]
 
 /* Provides a replacement for basic functions of glibc */
 extern crate rlibc;
+extern crate volatile;
+
+pub mod vga_buffer;
+
+use vga_buffer::*;
+use core::ptr::Unique;
+use core::fmt::Write;
+
 
 /* This is the function we will call from our asm code,
  * so the name cannot be mangled
@@ -10,21 +21,24 @@ extern crate rlibc;
 #[no_mangle]
 pub extern fn rust_main() {
  // ATTENTION: we have a very small stack and no guard page
-
-    let hello = b"Hello World!";
-    let color_byte = 0x1f; // white foreground, blue background
-
-    let mut hello_colored = [color_byte; 24];
-    for (i, char_byte) in hello.into_iter().enumerate() {
-        hello_colored[i*2] = *char_byte;
-    }
-
-    // write `Hello World!` to the center of the VGA text buffer
-    let buffer_ptr = (0xb8000 + 1988) as *mut _;
-    unsafe { *buffer_ptr = hello_colored };
+	print_something();
 
     loop{}
 }
+
+const VGA_BUFFER: u64 = 0xb8000;
+
+pub fn print_something() {
+    let mut writer = Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::LightGreen, Color::Black),
+        buffer: unsafe { Unique::new(VGA_BUFFER as *mut _) },
+    };
+
+    writer.write_str("Hello, ");
+	write!(writer, "the numbers are {} and {}", 42, 1.0/3.0).expect("Write error!");
+}
+
 
 /* Used for stacking unwinding.
  * Currently no stack unwinding features are supported
