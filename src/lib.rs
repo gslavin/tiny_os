@@ -11,6 +11,7 @@ extern crate rlibc;
 pub extern fn rust_main() {
     let x = ["Hello", "World", "!"];
     let y = x;
+	let test = (0..3).flat_map(|x| 0..x).zip(0..);
 }
 
 /* Used for stacking unwinding.
@@ -24,3 +25,14 @@ extern fn eh_personality() {}
 #[lang = "panic_fmt"]
 #[no_mangle] 
 pub extern fn panic_fmt() -> ! {loop{}}
+
+
+/* TODO: recompile libcore with panic=abort
+ * instead of using overriding function
+ */
+#[allow(non_snake_case)]
+#[no_mangle]
+pub extern "C" fn _Unwind_Resume() -> ! {
+    loop {}
+}
+
